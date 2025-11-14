@@ -27,7 +27,18 @@ To implement error detection using **CRC (Cyclic Redundancy Check)** and error d
 
 ### 🔹 Program 1: CRC Error Detection
 
+**📁 File: `crc.py`**
+
 ```python
+# CRC Error Detection Program
+# HOW TO RUN:
+# 1. Save this code as crc.py
+# 2. Open terminal/command prompt
+# 3. Run: python crc.py
+# 4. Enter data bits (example: 1101011)
+# 5. Enter generator polynomial (example: 1011)
+# 6. Enter received data to check for errors
+
 def xor_divide(dividend, divisor):
     dividend = list(dividend)
     divisor_len = len(divisor)
@@ -67,20 +78,22 @@ if __name__ == "__main__":
         print("❌ Error detected in received data.")
 ```
 
-**Sample Input/Output:**
-```
-Enter the data bits: 1101011
-Enter the generator polynomial: 1011
-Encoded data (to be transmitted): 1101011110
-Enter received data bits: 1101011110
-✅ No error detected in received data.
-```
-
 ---
 
 ### 🔹 Program 2: Hamming Code (Error Detection & Correction)
 
+**📁 File: `hamming.py`**
+
 ```python
+# Hamming Code - Error Detection and Correction
+# HOW TO RUN:
+# 1. Save this code as hamming.py
+# 2. Open terminal/command prompt
+# 3. Run: python hamming.py
+# 4. Enter 4 data bits (example: 1011)
+# 5. Note the encoded 7-bit code
+# 6. Enter received code to check/correct errors
+
 def hamming_encode(data):
     d = [int(bit) for bit in data]
     while len(d) < 4:
@@ -128,16 +141,6 @@ if __name__ == "__main__":
     print(f"Decoded data bits: {decoded}")
 ```
 
-**Sample Input/Output:**
-```
-Enter 4 data bits: 1011
-Encoded 7-bit Hamming code: 0110011
-Enter received 7-bit code: 0100011
-❌ Error detected at position: 3
-Corrected codeword: 0110011
-Decoded data bits: 1011
-```
-
 ---
 
 ## Experiment 2 - Remote Command Execution
@@ -147,29 +150,20 @@ To implement a remote command execution system using socket programming where a 
 
 ---
 
-### 🔹 Client Program
+### 📦 Complete Code (Copy Both Files)
+
+**📁 File 1: `remote_server.py` | File 2: `remote_client.py`**
 
 ```python
-import socket
+# ============================================
+# FILE 1: remote_server.py
+# ============================================
+# HOW TO RUN:
+# 1. Save this section as remote_server.py
+# 2. Open terminal and run: python remote_server.py
+# 3. Server will start and wait for client connection
+# 4. Keep this terminal open
 
-s = socket.socket()
-s.connect(("localhost", 4444))
-
-while True:
-    cmd = input("cmd> ")
-    s.send(cmd.encode())
-    if cmd == "quit":
-        break
-    print(s.recv(65535).decode(), end="")
-
-s.close()
-```
-
----
-
-### 🔹 Server Program
-
-```python
 import socket
 import subprocess
 import os
@@ -203,18 +197,46 @@ def handle_client(conn):
 server = socket.socket()
 server.bind(("0.0.0.0", 4444))
 server.listen()
-print("Running...")
+print("Server Running on port 4444...")
 
 while True:
     conn, addr = server.accept()
+    print(f"Client connected: {addr}")
     threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
+
+
+# ============================================
+# FILE 2: remote_client.py
+# ============================================
+# HOW TO RUN:
+# 1. Save this section as remote_client.py
+# 2. Make sure server is running first
+# 3. Open NEW terminal and run: python remote_client.py
+# 4. Type commands (ls, dir, pwd, etc.)
+# 5. Type 'quit' to exit
+
+import socket
+
+s = socket.socket()
+s.connect(("localhost", 4444))
+print("Connected to server!")
+print("Type commands (or 'quit' to exit)")
+
+while True:
+    cmd = input("cmd> ")
+    s.send(cmd.encode())
+    if cmd == "quit":
+        break
+    print(s.recv(65535).decode(), end="")
+
+s.close()
 ```
 
-**How to Run:**
-1. Start server: `python server.py`
-2. Start client: `python client.py`
-3. Type commands in client terminal
-4. Type `quit` to exit
+**🚀 Execution Steps:**
+```
+Terminal 1: python remote_server.py
+Terminal 2: python remote_client.py
+```
 
 ---
 
@@ -225,39 +247,56 @@ To implement chat applications using TCP (connection-oriented) and UDP (connecti
 
 ---
 
-### 🔹 TCP Chat Server
+### 📦 Part A: TCP Chat Application
+
+**📁 File 1: `tcp_chat_server.py` | File 2: `tcp_chat_client.py`**
 
 ```python
+# ============================================
+# FILE 1: tcp_chat_server.py
+# ============================================
+# HOW TO RUN:
+# 1. Save this section as tcp_chat_server.py
+# 2. Run: python tcp_chat_server.py
+# 3. Server starts on port 2345
+# 4. Wait for clients to connect
+
 import socket
 import threading
 
 
 def handle_client(conn, addr):
-    print(addr, "connected")
+    print(f"{addr} connected")
     while True:
         msg = conn.recv(1024).decode()
         if not msg or msg == "quit":
             break
         print(f"{addr}: {msg}")
         conn.send(f"Server: {msg}".encode())
+    print(f"{addr} disconnected")
     conn.close()
 
 
 server = socket.socket()
 server.bind(("localhost", 2345))
 server.listen()
-print("Server running...")
+print("TCP Server running on port 2345...")
 
 while True:
     conn, addr = server.accept()
     threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
-```
 
----
 
-### 🔹 TCP Chat Client
+# ============================================
+# FILE 2: tcp_chat_client.py
+# ============================================
+# HOW TO RUN:
+# 1. Save this section as tcp_chat_client.py
+# 2. Make sure server is running
+# 3. Run: python tcp_chat_client.py
+# 4. Type messages and press Enter
+# 5. Type 'quit' to exit
 
-```python
 import socket
 import threading
 
@@ -272,7 +311,7 @@ def receive_messages(sock):
 
 client = socket.socket()
 client.connect(("localhost", 2345))
-print("Connected. Type 'quit' to exit.")
+print("Connected to server! Type 'quit' to exit.")
 
 threading.Thread(target=receive_messages, args=(client,), daemon=True).start()
 
@@ -285,11 +324,34 @@ while True:
 client.close()
 ```
 
+**🚀 Execution Steps:**
+```
+Terminal 1: python tcp_chat_server.py
+Terminal 2: python tcp_chat_client.py
+```
+
 ---
 
-### 🔹 UDP Chat (Peer-to-Peer)
+### 📦 Part B: UDP Peer-to-Peer Chat
+
+**📁 File: `udp_chat.py` (Run on both peers)**
 
 ```python
+# ============================================
+# UDP Peer-to-Peer Chat
+# ============================================
+# HOW TO RUN:
+# 1. Save this code as udp_chat.py
+# 2. Open TWO terminals
+# 3. Terminal 1: python udp_chat.py
+#    - Enter your port: 5000
+#    - Enter peer port: 6000
+# 4. Terminal 2: python udp_chat.py
+#    - Enter your port: 6000
+#    - Enter peer port: 5000
+# 5. Start chatting!
+# 6. Type 'quit' to exit
+
 import socket
 import threading
 
@@ -297,7 +359,8 @@ import threading
 def receive_messages(sock):
     while True:
         data, addr = sock.recvfrom(1024)
-        print(f"\n{addr}: {data.decode()}")
+        print(f"\nPeer: {data.decode()}")
+        print("You: ", end="", flush=True)
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -306,7 +369,7 @@ peer_port = int(input("Peer port: "))
 
 sock.bind(("localhost", my_port))
 threading.Thread(target=receive_messages, args=(sock,), daemon=True).start()
-print("Chat started! Type 'quit' to exit.")
+print("Chat started! Type 'quit' to exit.\n")
 
 while True:
     msg = input("You: ")
@@ -317,11 +380,11 @@ while True:
 sock.close()
 ```
 
-**How to Run UDP Chat:**
-1. Open two terminals
-2. Terminal 1: Enter port 5000, peer port 6000
-3. Terminal 2: Enter port 6000, peer port 5000
-4. Start chatting!
+**🚀 Execution Steps:**
+```
+Terminal 1: python udp_chat.py → Port: 5000, Peer: 6000
+Terminal 2: python udp_chat.py → Port: 6000, Peer: 5000
+```
 
 ---
 
@@ -332,9 +395,20 @@ To implement a multi-threaded server that handles multiple clients simultaneousl
 
 ---
 
-### 🔹 Multi-threaded Server
+### 📦 Complete Code (Server + Client)
+
+**📁 File 1: `multithread_server.py` | File 2: `multithread_client.py`**
 
 ```python
+# ============================================
+# FILE 1: multithread_server.py
+# ============================================
+# HOW TO RUN:
+# 1. Save this section as multithread_server.py
+# 2. Run: python multithread_server.py
+# 3. Server starts on port 12345
+# 4. Can handle multiple clients simultaneously
+
 import socket
 import threading
 
@@ -372,7 +446,8 @@ def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("localhost", 12345))
     server.listen(5)
-    print("Server started on localhost:12345")
+    print("Multi-threaded Server started on localhost:12345")
+    print("Supported commands: ECHO, PING, TALK")
 
     while True:
         client_socket, address = server.accept()
@@ -382,13 +457,21 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
-```
 
----
 
-### 🔹 Client Program
+# ============================================
+# FILE 2: multithread_client.py
+# ============================================
+# HOW TO RUN:
+# 1. Save this section as multithread_client.py
+# 2. Make sure server is running
+# 3. Run: python multithread_client.py
+# 4. Enter commands:
+#    - ECHO Hello
+#    - PING
+#    - TALK Hi there
+# 5. Type 'quit' to exit
 
-```python
 import socket
 
 
@@ -397,7 +480,10 @@ def start_client():
     client.connect(("localhost", 12345))
 
     print("Connected to server!")
-    print("Commands: ECHO <message>, PING, TALK <message>")
+    print("Commands:")
+    print("  ECHO <message>  - Server echoes your message")
+    print("  PING            - Server replies PONG")
+    print("  TALK <message>  - Server responds with message")
     print("Type 'quit' to exit.\n")
 
     while True:
@@ -407,137 +493,13 @@ def start_client():
 
         client.send(message.encode())
         response = client.recv(1024).decode()
-        print(f"Server response: {response}")
+        print(f"Server response: {response}\n")
 
     client.close()
     print("Disconnected from server")
 
 
-if __name__ == "__main__":
-    start_client()
-```
-
-**Commands:**
-- `ECHO Hello` → Server replies: `Echo: Hello`
-- `PING` → Server replies: `PONG`
-- `TALK Hi` → Server replies: `Server says: Hi`
-
----
-
-## Experiment 6 - File Transfer using TCP and UDP
-
-### 🎯 Aim
-To transfer files between client and server using both TCP (reliable) and UDP (fast) protocols.
-
----
-
-### 🔹 TCP File Transfer - Server
-
-```python
-import socket
-
-s = socket.socket()
-s.bind(("localhost", 5000))
-s.listen(1)
-print("TCP Server waiting...")
-
-c, a = s.accept()
-filename = c.recv(1024).decode()
-
-try:
-    data = open(filename, "rb").read()
-    c.send(data)
-    print("File sent.")
-except:
-    c.send(b"ERROR: File not found")
-
-c.close()
-s.close()
-```
-
----
-
-### 🔹 TCP File Transfer - Client
-
-```python
-import socket
-
-c = socket.socket()
-c.connect(("localhost", 5000))
-
-fname = input("Enter filename: ")
-c.send(fname.encode())
-
-data = c.recv(1000000)
-
-if data.startswith(b"ERROR"):
-    print("File not found")
-else:
-    open("received_" + fname, "wb").write(data)
-    print("File saved.")
-
-c.close()
-```
-
----
-
-### 🔹 UDP File Transfer - Server
-
-```python
-import socket
-
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(("localhost", 6000))
-print("UDP Server waiting...")
-
-fname, addr = s.recvfrom(1024)
-fname = fname.decode()
-
-try:
-    data = open(fname, "rb").read()
-    for i in range(0, len(data), 1024):
-        s.sendto(data[i : i + 1024], addr)
-    s.sendto(b"END", addr)
-    print("File sent.")
-except:
-    s.sendto(b"ERROR: File not found", addr)
-
-s.close()
-```
-
----
-
-### 🔹 UDP File Transfer - Client
-
-```python
-import socket
-
-c = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-fname = input("Enter filename: ")
-c.sendto(fname.encode(), ("localhost", 6000))
-
-data = b""
-while True:
-    chunk, a = c.recvfrom(1024)
-    if chunk == b"END":
-        break
-    if chunk.startswith(b"ERROR"):
-        print("File not found")
-        exit()
-    data += chunk
-
-open("received_" + fname, "wb").write(data)
-print("File saved.")
-c.close()
-```
-
-**How to Run:**
-1. Place a test file (e.g., `test.txt`) in server folder
-2. Run server: `python tcp_server.py` or `python udp_server.py`
-3. Run client: `python tcp_client.py` or `python udp_client.py`
-4. Enter filename when prompted
-5. File will be saved as `received_<filename>`
+if __name__ == "__main__
 
 ---
 
